@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,496 +8,153 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink: #1a1814;
-  --ink2: #4a4640;
-  --ink3: #8a8580;
-  --paper: #f5f2ec;
-  --paper2: #ede9e0;
-  --paper3: #e5e0d5;
-  --accent: #c4673a;
-  --accent2: #2d5a4e;
+  --ink: #1a1814; --ink2: #4a4640; --ink3: #8a8580;
+  --paper: #f5f2ec; --paper2: #ede9e0; --paper3: #e5e0d5;
+  --accent: #c4673a; --accent2: #2d5a4e;
   --line: rgba(26,24,20,0.1);
   --serif: 'DM Serif Display', Georgia, serif;
   --mono: 'DM Mono', monospace;
-  --up: #2d5a4e;
-  --down: #b94a2a;
+  --up: #2d5a4e; --down: #b94a2a;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.6;
-  min-height: 100vh;
-}
-.layout {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 28px 60px;
-}
+body { background:var(--paper); color:var(--ink); font-family:var(--mono); font-size:12px; line-height:1.6; min-height:100vh; }
+.layout { max-width:1200px; margin:0 auto; padding:32px 28px 60px; }
 
-/* TOP BAR */
-.topbar {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  border-bottom: 1.5px solid var(--ink);
-  padding-bottom: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.topbar-name {
-  font-family: var(--serif);
-  font-size: 28px;
-  color: var(--ink);
-  letter-spacing: -0.5px;
-}
-.topbar-name span { color: var(--accent); font-style: italic; }
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.topbar-date {
-  font-size: 11px;
-  color: var(--ink3);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.weather-badge {
-  font-size: 11px;
-  color: var(--ink2);
-  background: var(--paper2);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  padding: 3px 10px;
-}
+#boot-overlay { position:fixed; inset:0; background:var(--paper); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; transition:opacity 0.4s; }
+#boot-overlay.hidden { opacity:0; pointer-events:none; }
+.boot-name { font-family:var(--serif); font-size:34px; color:var(--ink); }
+.boot-name span { color:var(--accent); font-style:italic; }
+.boot-spinner { width:20px; height:20px; border:2px solid var(--line); border-top-color:var(--ink3); border-radius:50%; animation:spin 0.8s linear infinite; }
+.boot-status { font-size:11px; color:var(--ink3); letter-spacing:0.08em; }
 
-/* FOCUS INTENTION */
-.focus-bar {
-  background: var(--paper2);
-  border-left: 3px solid var(--accent);
-  padding: 10px 16px;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.focus-label {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  white-space: nowrap;
-  font-weight: 500;
-}
-.focus-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: var(--mono);
-  font-size: 12.5px;
-  color: var(--ink);
-  font-style: italic;
-}
-.focus-input::placeholder { color: var(--ink3); }
+.topbar { display:flex; align-items:baseline; justify-content:space-between; border-bottom:1.5px solid var(--ink); padding-bottom:16px; margin-bottom:24px; flex-wrap:wrap; gap:8px; }
+.topbar-name { font-family:var(--serif); font-size:28px; color:var(--ink); letter-spacing:-0.5px; }
+.topbar-name span { color:var(--accent); font-style:italic; }
+.topbar-right { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.topbar-date { font-size:11px; color:var(--ink3); letter-spacing:0.06em; text-transform:uppercase; }
+.weather-badge { font-size:11px; color:var(--ink2); background:var(--paper2); border:1px solid var(--line); border-radius:3px; padding:3px 10px; }
+.sync-badge { font-size:10px; color:var(--ink3); display:flex; align-items:center; gap:5px; }
+.sync-dot { width:6px; height:6px; border-radius:50%; background:var(--accent2); transition:background 0.3s; }
+.sync-dot.syncing { background:var(--accent); animation:pulse 1s ease-in-out infinite; }
+.sync-dot.error { background:var(--down); }
 
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 16px;
-}
+.focus-bar { background:var(--paper2); border-left:3px solid var(--accent); padding:10px 16px; margin-bottom:24px; display:flex; align-items:center; gap:10px; }
+.focus-label { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); white-space:nowrap; font-weight:500; }
+.focus-input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:12.5px; color:var(--ink); font-style:italic; }
+.focus-input::placeholder { color:var(--ink3); }
 
-/* SECTION */
-.section {
-  background: var(--paper2);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  min-height: 280px;
-}
-.section.tall { min-height: 360px; }
-.section.span2 { grid-column: span 2; }
-.section.full { grid-column: span 3; }
+.grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.section { background:var(--paper2); border:1px solid var(--line); border-radius:3px; padding:16px; display:flex; flex-direction:column; min-height:280px; }
+.section.tall { min-height:360px; }
+.section.span2 { grid-column:span 2; }
+.section.full { grid-column:span 3; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+.section-title { font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); font-weight:500; }
+.section-action { font-size:10px; color:var(--ink3); cursor:pointer; background:none; border:none; font-family:var(--mono); padding:2px 6px; border-radius:2px; transition:background 0.15s; }
+.section-action:hover { background:var(--paper3); color:var(--ink2); }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
-}
-.section-title {
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-weight: 500
-}
-.section-action {
-  font-size: 10px;
-  color: var(--ink3);
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-family: var(--mono);
-  padding: 2px 6px;
-  border-radius: 2px;
-  transition: background 0.15s;
-}
-.section-action:hover { background: var(--paper3); color: var(--ink2); }
+.task-input-row { display:flex; gap:6px; margin-bottom:10px; }
+.task-input { flex:1; background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:5px 8px; font-family:var(--mono); font-size:11.5px; color:var(--ink); outline:none; }
+.task-input:focus { border-color:var(--ink3); }
+.task-input::placeholder { color:var(--ink3); }
+.add-btn { background:var(--ink); color:var(--paper); border:none; border-radius:2px; padding:5px 10px; font-family:var(--mono); font-size:11px; cursor:pointer; white-space:nowrap; }
+.add-btn:hover { background:var(--ink2); }
+.task-list { flex:1; overflow-y:auto; max-height:300px; }
+.task-item { display:flex; align-items:flex-start; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); }
+.task-item:last-child { border-bottom:none; }
+.task-item.done { opacity:0.45; }
+.task-item.done .task-text { text-decoration:line-through; color:var(--ink3); }
+.task-cb { width:13px; height:13px; border:1.5px solid var(--ink3); border-radius:2px; cursor:pointer; flex-shrink:0; margin-top:2px; appearance:none; -webkit-appearance:none; position:relative; background:transparent; }
+.task-cb:checked { background:var(--accent2); border-color:var(--accent2); }
+.task-cb:checked::after { content:''; position:absolute; left:2px; top:0px; width:5px; height:8px; border:1.5px solid white; border-left:none; border-top:none; transform:rotate(45deg); }
+.task-text { font-size:12px; color:var(--ink2); flex:1; line-height:1.5; }
+.task-del { background:none; border:none; color:var(--ink3); cursor:pointer; font-size:14px; line-height:1; padding:0 2px; opacity:0; }
+.task-item:hover .task-del { opacity:1; }
 
-/* TASKS */
-.task-input-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.task-input {
-  flex: 1;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  padding: 5px 8px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--ink);
-  outline: none;
-}
-.task-input:focus { border-color: var(--ink3); }
-.task-input::placeholder { color: var(--ink3); }
-.add-btn {
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
-  border-radius: 2px;
-  padding: 5px 10px;
-  font-family: var(--mono);
-  font-size: 11px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.add-btn:hover { background: var(--ink2); }
+.news-list { flex:1; overflow-y:auto; }
+.news-item { padding:8px 0; border-bottom:1px solid var(--line); cursor:pointer; }
+.news-item:last-child { border-bottom:none; }
+.news-item:hover .news-headline { color:var(--accent); }
+.news-headline { font-size:12px; color:var(--ink); line-height:1.5; margin-bottom:2px; transition:color 0.15s; }
+.news-meta { font-size:10px; color:var(--ink3); }
+.news-tag { display:inline-block; font-size:9.5px; padding:1px 6px; border-radius:2px; margin-right:4px; letter-spacing:0.05em; text-transform:uppercase; }
+.tag-geo { background:rgba(196,103,58,0.1); color:var(--accent); }
+.tag-music { background:rgba(45,90,78,0.1); color:var(--accent2); }
+.loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:8px; color:var(--ink3); font-size:11px; min-height:120px; }
+.spinner { width:18px; height:18px; border:2px solid var(--line); border-top-color:var(--ink3); border-radius:50%; animation:spin 0.8s linear infinite; }
 
-.task-list { flex: 1; overflow-y: auto; max-height: 300px; }
-.task-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--line);
-  transition: opacity 0.2s;
-}
-.task-item:last-child { border-bottom: none; }
-.task-item.done { opacity: 0.45; }
-.task-item.done .task-text { text-decoration: line-through; color: var(--ink3); }
-.task-cb {
-  width: 13px;
-  height: 13px;
-  border: 1.5px solid var(--ink3);
-  border-radius: 2px;
-  cursor: pointer;
-  flex-shrink: 0;
-  margin-top: 2px;
-  appearance: none;
-  -webkit-appearance: none;
-  position: relative;
-  background: transparent;
-}
-.task-cb:checked {
-  background: var(--accent2);
-  border-color: var(--accent2);
-}
-.task-cb:checked::after {
-  content: '';
-  position: absolute;
-  left: 2px; top: 0px;
-  width: 5px; height: 8px;
-  border: 1.5px solid white;
-  border-left: none; border-top: none;
-  transform: rotate(45deg);
-}
-.task-text { font-size: 12px; color: var(--ink2); flex: 1; line-height: 1.5; }
-.task-del {
-  background: none;
-  border: none;
-  color: var(--ink3);
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  padding: 0 2px;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-.task-item:hover .task-del { opacity: 1; }
+.market-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.market-tile { background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:8px 10px; }
+.market-name { font-size:10px; color:var(--ink3); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:2px; }
+.market-price { font-size:14px; font-weight:500; color:var(--ink); margin-bottom:1px; }
+.market-change { font-size:10.5px; }
+.up { color:var(--up); } .down { color:var(--down); }
+.commodities-label { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; margin-top:4px; }
+.commodity-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--line); font-size:11.5px; }
+.commodity-row:last-child { border-bottom:none; }
+.commodity-name { color:var(--ink2); }
+.commodity-val { font-weight:500; color:var(--ink); }
+.commodity-chg { font-size:10.5px; margin-left:8px; }
 
-/* NEWS */
-.news-list { flex: 1; overflow-y: auto; }
-.news-item {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-}
-.news-item:last-child { border-bottom: none; }
-.news-item:hover .news-headline { color: var(--accent); }
-.news-headline {
-  font-size: 12px;
-  color: var(--ink);
-  line-height: 1.5;
-  margin-bottom: 2px;
-  transition: color 0.15s;
-}
-.news-meta {
-  font-size: 10px;
-  color: var(--ink3);
-  letter-spacing: 0.04em;
-}
-.news-tag {
-  display: inline-block;
-  font-size: 9.5px;
-  padding: 1px 6px;
-  border-radius: 2px;
-  margin-right: 4px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.tag-geo { background: rgba(196,103,58,0.1); color: var(--accent); }
-.tag-music { background: rgba(45,90,78,0.1); color: var(--accent2); }
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  gap: 8px;
-  color: var(--ink3);
-  font-size: 11px;
-  min-height: 120px;
-}
-.spinner {
-  width: 18px; height: 18px;
-  border: 2px solid var(--line);
-  border-top-color: var(--ink3);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.music-input-row { display:flex; gap:6px; margin-bottom:8px; }
+.music-select { background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:5px 6px; font-family:var(--mono); font-size:11px; color:var(--ink2); outline:none; cursor:pointer; }
+.music-item { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); }
+.music-item:last-child { border-bottom:none; }
+.music-type { font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; padding:2px 6px; border-radius:2px; white-space:nowrap; flex-shrink:0; }
+.type-release { background:rgba(45,90,78,0.1); color:var(--accent2); }
+.type-set { background:rgba(196,103,58,0.1); color:var(--accent); }
+.type-festival { background:rgba(26,24,20,0.07); color:var(--ink2); }
+.type-artist { background:rgba(100,80,160,0.1); color:#5a4aa0; }
+.type-industry { background:rgba(50,100,180,0.1); color:#2a5ab0; }
+.type-nextstep { background:rgba(180,140,20,0.12); color:#8a6a00; }
+.music-text { font-size:12px; color:var(--ink2); flex:1; line-height:1.4; }
+.music-del { background:none; border:none; color:var(--ink3); cursor:pointer; font-size:14px; opacity:0; }
+.music-item:hover .music-del { opacity:1; }
 
-/* MARKETS */
-.market-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.market-tile {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  padding: 8px 10px;
-}
-.market-name {
-  font-size: 10px;
-  color: var(--ink3);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-.market-price {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink);
-  margin-bottom: 1px;
-}
-.market-change {
-  font-size: 10.5px;
-  font-weight: 400;
-}
-.up { color: var(--up); }
-.down { color: var(--down); }
+.pipeline-cols { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; flex:1; }
+.pipeline-col-header { font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--line); }
+.pipeline-item { background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:7px 9px; margin-bottom:6px; font-size:11.5px; color:var(--ink2); position:relative; }
+.pipeline-item .p-del { position:absolute; top:4px; right:6px; background:none; border:none; color:var(--ink3); cursor:pointer; font-size:12px; opacity:0; }
+.pipeline-item:hover .p-del { opacity:1; }
+.pipeline-add { width:100%; background:transparent; border:1px dashed var(--line); border-radius:2px; padding:5px 8px; font-family:var(--mono); font-size:11px; color:var(--ink3); cursor:pointer; text-align:left; margin-top:4px; }
+.pipeline-add:hover { border-color:var(--ink3); color:var(--ink2); background:var(--paper); }
 
-.commodities-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink3);
-  margin-bottom: 8px;
-  margin-top: 4px;
-}
-.commodity-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 11.5px;
-}
-.commodity-row:last-child { border-bottom: none; }
-.commodity-name { color: var(--ink2); }
-.commodity-val { font-weight: 500; color: var(--ink); }
-.commodity-chg { font-size: 10.5px; margin-left: 8px; }
+.refresh-all { display:inline-flex; align-items:center; gap:6px; background:var(--ink); color:var(--paper); border:none; border-radius:3px; padding:7px 14px; font-family:var(--mono); font-size:11px; cursor:pointer; }
+.refresh-all:hover { background:var(--ink2); }
+.refresh-all:disabled { opacity:0.5; cursor:not-allowed; }
 
-/* MUSIC NOTES */
-.music-input-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-.music-select {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  padding: 5px 6px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink2);
-  outline: none;
-  cursor: pointer;
-}
-.music-list { flex: 1; overflow-y: auto; }
-.music-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--line);
-}
-.music-item:last-child { border-bottom: none; }
-.music-type {
-  font-size: 9.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 2px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.type-release { background: rgba(45,90,78,0.1); color: var(--accent2); }
-.type-set { background: rgba(196,103,58,0.1); color: var(--accent); }
-.type-festival { background: rgba(26,24,20,0.07); color: var(--ink2); }
-.type-artist { background: rgba(100,80,160,0.1); color: #5a4aa0; }
-.type-industry { background: rgba(50,100,180,0.1); color: #2a5ab0; }
-.type-nextstep { background: rgba(180,140,20,0.12); color: #8a6a00; }
-.music-text { font-size: 12px; color: var(--ink2); flex: 1; line-height: 1.4; }
-.music-del {
-  background: none; border: none; color: var(--ink3);
-  cursor: pointer; font-size: 14px; opacity: 0; transition: opacity 0.15s;
-}
-.music-item:hover .music-del { opacity: 1; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-/* PIPELINE */
-.pipeline-cols {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  flex: 1;
-}
-.pipeline-col-header {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink3);
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-}
-.pipeline-item {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  padding: 7px 9px;
-  margin-bottom: 6px;
-  font-size: 11.5px;
-  color: var(--ink2);
-  line-height: 1.4;
-  position: relative;
-  cursor: pointer;
-}
-.pipeline-item:hover { border-color: var(--ink3); }
-.pipeline-item .p-del {
-  position: absolute; top: 4px; right: 6px;
-  background: none; border: none; color: var(--ink3);
-  cursor: pointer; font-size: 12px; opacity: 0;
-}
-.pipeline-item:hover .p-del { opacity: 1; }
-.pipeline-add {
-  width: 100%;
-  background: transparent;
-  border: 1px dashed var(--line);
-  border-radius: 2px;
-  padding: 5px 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink3);
-  cursor: pointer;
-  text-align: left;
-  margin-top: 4px;
-}
-.pipeline-add:hover { border-color: var(--ink3); color: var(--ink2); background: var(--paper); }
-
-/* REFRESH BTN */
-.refresh-all {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
-  border-radius: 3px;
-  padding: 7px 14px;
-  font-family: var(--mono);
-  font-size: 11px;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-}
-.refresh-all:hover { background: var(--ink2); }
-.refresh-all:disabled { opacity: 0.5; cursor: not-allowed; }
-
-@media (max-width: 900px) {
-  .grid { grid-template-columns: 1fr 1fr; }
-  .section.span2 { grid-column: span 2; }
-  .section.full { grid-column: span 2; }
-  .market-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 600px) {
-  .grid { grid-template-columns: 1fr; }
-  .section.span2, .section.full { grid-column: span 1; }
-  .pipeline-cols { grid-template-columns: 1fr; }
-}
+@media(max-width:900px){ .grid{grid-template-columns:1fr 1fr;} .section.full{grid-column:span 2;} .market-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:600px){ .grid{grid-template-columns:1fr;} .section.span2,.section.full{grid-column:span 1;} .pipeline-cols{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
-<div class="layout">
 
-  <!-- TOP BAR -->
+<div id="boot-overlay">
+  <div class="boot-name">Bom dia, <span>Lourenço</span></div>
+  <div class="boot-spinner"></div>
+  <div class="boot-status" id="boot-status">Connecting to database...</div>
+</div>
+
+<div class="layout">
   <div class="topbar">
     <div class="topbar-name">Bom dia, <span>Lourenço</span></div>
     <div class="topbar-right">
       <div class="topbar-date" id="date-display"></div>
-      <div class="weather-badge" id="weather-display">☁ Lisbon —</div>
+      <div class="weather-badge" id="weather-display">☁ Lisbon</div>
+      <div class="sync-badge"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">loading</span></div>
       <button class="refresh-all" id="refresh-btn" onclick="refreshAll()">↻ Refresh news & markets</button>
     </div>
   </div>
 
-  <!-- FOCUS INTENTION -->
   <div class="focus-bar">
     <span class="focus-label">Today's focus</span>
     <input class="focus-input" id="focus-input" type="text" placeholder="What is the one thing that matters most today?" />
   </div>
 
-  <!-- GRID -->
   <div class="grid">
-
-    <!-- PERSONAL TO-DO -->
     <div class="section tall">
       <div class="section-header">
         <span class="section-title">Personal &amp; Admin</span>
@@ -509,7 +167,6 @@ body {
       <div class="task-list" id="personal-list"></div>
     </div>
 
-    <!-- VENTURE TO-DO -->
     <div class="section tall">
       <div class="section-header">
         <span class="section-title">Venture &amp; Next Actions</span>
@@ -522,33 +179,24 @@ body {
       <div class="task-list" id="venture-list"></div>
     </div>
 
-    <!-- MARKETS -->
     <div class="section tall">
       <div class="section-header">
         <span class="section-title">Markets &amp; Commodities</span>
         <span class="section-action" id="market-time" style="cursor:default;">—</span>
       </div>
-      <div id="market-content">
-        <div class="loading-state"><div class="spinner"></div>Loading markets...</div>
-      </div>
+      <div id="market-content"><div class="loading-state"><div class="spinner"></div>Loading markets...</div></div>
     </div>
 
-    <!-- GEO-POLITICAL NEWS -->
     <div class="section span2">
       <div class="section-header">
         <span class="section-title">World &amp; Geopolitical News</span>
         <button class="section-action" onclick="loadNews('geo')">↻ refresh</button>
       </div>
-      <div id="geo-content" class="news-list">
-        <div class="loading-state"><div class="spinner"></div>Fetching headlines...</div>
-      </div>
+      <div id="geo-content" class="news-list"><div class="loading-state"><div class="spinner"></div>Fetching headlines...</div></div>
     </div>
 
-    <!-- PIPELINE -->
     <div class="section">
-      <div class="section-header">
-        <span class="section-title">Venture Pipeline</span>
-      </div>
+      <div class="section-header"><span class="section-title">Venture Pipeline</span></div>
       <div class="pipeline-cols">
         <div>
           <div class="pipeline-col-header">Prospect</div>
@@ -568,14 +216,12 @@ body {
       </div>
     </div>
 
-    <!-- MUSIC -->
     <div class="section full">
       <div class="section-header">
         <span class="section-title">Music — News, Listening &amp; Next Steps</span>
         <button class="section-action" onclick="loadNews('music')">↻ refresh music news</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;">
-        <!-- Manual music notes -->
         <div style="display:flex;flex-direction:column;">
           <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;">My list — to listen / next steps</div>
           <div class="music-input-row">
@@ -589,308 +235,298 @@ body {
             <input class="task-input" id="music-input" placeholder="Add artist, set, release..." onkeydown="if(event.key==='Enter')addMusicItem()" style="flex:1;" />
             <button class="add-btn" onclick="addMusicItem()">+</button>
           </div>
-          <div class="music-list" id="music-list" style="max-height:220px;overflow-y:auto;"></div>
+          <div id="music-list" style="max-height:220px;overflow-y:auto;"></div>
         </div>
-        <!-- Live music news -->
         <div style="display:flex;flex-direction:column;">
           <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;">Live music news</div>
-          <div id="music-news-content" class="news-list" style="max-height:240px;overflow-y:auto;">
-            <div class="loading-state"><div class="spinner"></div>Fetching music news...</div>
-          </div>
+          <div id="music-news-content" class="news-list" style="max-height:240px;overflow-y:auto;"><div class="loading-state"><div class="spinner"></div>Fetching music news...</div></div>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-// ─── DATE & WEATHER ───────────────────────────────────────────────
-function setDate() {
-  const now = new Date();
-  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-  document.getElementById('date-display').textContent = now.toLocaleDateString('en-GB', opts);
+var SUPA_URL = 'https://pteirhgznplspndwsbve.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB0ZWlyaGd6bnBsc3BuZHdzYnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MDY4MDQsImV4cCI6MjA5MDE4MjgwNH0.o7IOxbjLX74XQTCCYrvw7fYjUGfaEl1gJcoynRuaEYo';
+var DB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY,
+  'Prefer': 'resolution=merge-duplicates'
+};
+
+var S = {
+  personal: [],
+  venture: [],
+  pipe_prospect: [],
+  pipe_contacted: [],
+  pipe_active: [],
+  music_list: [],
+  focus: {}
+};
+
+function syncUI(status) {
+  var dot = document.getElementById('sync-dot');
+  var lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (status === 'syncing' ? ' syncing' : status === 'error' ? ' error' : '');
+  lbl.textContent = status === 'syncing' ? 'saving...' : status === 'error' ? 'sync error' : 'synced';
 }
 
-async function loadWeather() {
-  try {
-    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.72&longitude=-9.14&current_weather=true&hourly=precipitation_probability&timezone=Europe/Lisbon');
-    const d = await r.json();
-    const temp = Math.round(d.current_weather.temperature);
-    const code = d.current_weather.weathercode;
-    const icons = {0:'☀',1:'🌤',2:'⛅',3:'☁',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',80:'🌦',81:'🌧',95:'⛈'};
-    const icon = icons[code] || '🌡';
-    document.getElementById('weather-display').textContent = `${icon} Lisbon — ${temp}°C`;
-  } catch(e) {
-    document.getElementById('weather-display').textContent = '☁ Lisbon';
-  }
+function dbGet(key) {
+  return fetch(SUPA_URL + '/rest/v1/dashboard_data?key=eq.' + key + '&select=value', { headers: DB_HEADERS })
+    .then(function(r) { return r.json(); })
+    .then(function(rows) { return rows.length > 0 ? JSON.parse(rows[0].value) : null; })
+    .catch(function() { return null; });
 }
 
-// ─── STORAGE ──────────────────────────────────────────────────────
-function save(key, val) { try { localStorage.setItem('ld_'+key, JSON.stringify(val)); } catch(e){} }
-function load(key, def) { try { const v = localStorage.getItem('ld_'+key); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
+function dbSet(key, val) {
+  syncUI('syncing');
+  return fetch(SUPA_URL + '/rest/v1/dashboard_data', {
+    method: 'POST',
+    headers: DB_HEADERS,
+    body: JSON.stringify({ key: key, value: JSON.stringify(val), updated_at: new Date().toISOString() })
+  })
+  .then(function() { syncUI('synced'); })
+  .catch(function() { syncUI('error'); });
+}
 
-// ─── TASKS ───────────────────────────────────────────────────────
-function renderTasks(listId) {
-  const tasks = load(listId, []);
-  const el = document.getElementById(listId+'-list');
-  const active = tasks.filter(t => !t.done);
-  const done = tasks.filter(t => t.done);
+function callClaude(body) {
+  return fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); });
+}
+
+function boot() {
+  var overlay = document.getElementById('boot-overlay');
+  var statusEl = document.getElementById('boot-status');
+  var keys = Object.keys(S);
+  var loaded = 0;
+  var promises = keys.map(function(k) {
+    return dbGet(k).then(function(v) {
+      if (v !== null) S[k] = v;
+      loaded++;
+      statusEl.textContent = 'Loading data... (' + loaded + '/' + keys.length + ')';
+    });
+  });
+  Promise.all(promises).then(function() {
+    overlay.classList.add('hidden');
+    setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 500);
+    syncUI('synced');
+    renderTasks('personal');
+    renderTasks('venture');
+    renderPipeline();
+    renderMusicList();
+    initFocus();
+  });
+}
+
+document.getElementById('date-display').textContent =
+  new Date().toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+fetch('https://api.open-meteo.com/v1/forecast?latitude=38.72&longitude=-9.14&current_weather=true&timezone=Europe/Lisbon')
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    var icons = {0:'☀',1:'🌤',2:'⛅',3:'☁',45:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',80:'🌦',81:'🌧',95:'⛈'};
+    document.getElementById('weather-display').textContent =
+      (icons[d.current_weather.weathercode] || '🌡') + ' Lisbon — ' + Math.round(d.current_weather.temperature) + '°C';
+  }).catch(function() {});
+
+function renderTasks(id) {
+  var tasks = S[id] || [];
+  var el = document.getElementById(id + '-list');
   el.innerHTML = '';
-  [...active, ...done].forEach((t, i) => {
-    const realIdx = tasks.indexOf(t);
-    const div = document.createElement('div');
+  var active = tasks.filter(function(t) { return !t.done; });
+  var done = tasks.filter(function(t) { return t.done; });
+  active.concat(done).forEach(function(t) {
+    var i = tasks.indexOf(t);
+    var div = document.createElement('div');
     div.className = 'task-item' + (t.done ? ' done' : '');
-    div.innerHTML = `
-      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask('${listId}',${realIdx})"/>
-      <span class="task-text">${t.text}</span>
-      <button class="task-del" onclick="deleteTask('${listId}',${realIdx})">×</button>`;
+    div.innerHTML =
+      '<input type="checkbox" class="task-cb"' + (t.done ? ' checked' : '') + ' onchange="toggleTask(\'' + id + '\',' + i + ')"/>' +
+      '<span class="task-text">' + t.text + '</span>' +
+      '<button class="task-del" onclick="deleteTask(\'' + id + '\',' + i + ')">×</button>';
     el.appendChild(div);
   });
 }
-function addTask(listId) {
-  const input = document.getElementById(listId+'-input');
-  const text = input.value.trim();
+
+function addTask(id) {
+  var inp = document.getElementById(id + '-input');
+  var text = inp.value.trim();
   if (!text) return;
-  const tasks = load(listId, []);
-  tasks.push({ text, done: false, created: Date.now() });
-  save(listId, tasks);
-  input.value = '';
-  renderTasks(listId);
-}
-function toggleTask(listId, idx) {
-  const tasks = load(listId, []);
-  tasks[idx].done = !tasks[idx].done;
-  save(listId, tasks);
-  renderTasks(listId);
-}
-function deleteTask(listId, idx) {
-  const tasks = load(listId, []);
-  tasks.splice(idx, 1);
-  save(listId, tasks);
-  renderTasks(listId);
-}
-function clearDone(listId) {
-  const tasks = load(listId, []).filter(t => !t.done);
-  save(listId, tasks);
-  renderTasks(listId);
+  S[id].push({ text: text, done: false, created: Date.now() });
+  inp.value = '';
+  renderTasks(id);
+  dbSet(id, S[id]);
 }
 
-// ─── PIPELINE ─────────────────────────────────────────────────────
+function toggleTask(id, i) {
+  S[id][i].done = !S[id][i].done;
+  renderTasks(id);
+  dbSet(id, S[id]);
+}
+
+function deleteTask(id, i) {
+  S[id].splice(i, 1);
+  renderTasks(id);
+  dbSet(id, S[id]);
+}
+
+function clearDone(id) {
+  S[id] = S[id].filter(function(t) { return !t.done; });
+  renderTasks(id);
+  dbSet(id, S[id]);
+}
+
 function renderPipeline() {
-  ['prospect','contacted','active'].forEach(col => {
-    const items = load('pipe_'+col, []);
-    const el = document.getElementById('pipe-'+col);
+  ['prospect', 'contacted', 'active'].forEach(function(col) {
+    var items = S['pipe_' + col] || [];
+    var el = document.getElementById('pipe-' + col);
     el.innerHTML = '';
-    items.forEach((item, i) => {
-      const div = document.createElement('div');
+    items.forEach(function(item, i) {
+      var div = document.createElement('div');
       div.className = 'pipeline-item';
-      div.innerHTML = `${item}<button class="p-del" onclick="deletePipelineItem('${col}',${i})">×</button>`;
+      div.innerHTML = item + '<button class="p-del" onclick="delPipe(\'' + col + '\',' + i + ')">×</button>';
       el.appendChild(div);
     });
   });
 }
+
 function addPipelineItem(col) {
-  const name = prompt('Add contact / company:');
+  var name = prompt('Add contact / company:');
   if (!name || !name.trim()) return;
-  const items = load('pipe_'+col, []);
-  items.push(name.trim());
-  save('pipe_'+col, items);
+  var key = 'pipe_' + col;
+  S[key].push(name.trim());
   renderPipeline();
-}
-function deletePipelineItem(col, idx) {
-  const items = load('pipe_'+col, []);
-  items.splice(idx, 1);
-  save('pipe_'+col, items);
-  renderPipeline();
+  dbSet(key, S[key]);
 }
 
-// ─── MUSIC LIST ──────────────────────────────────────────────────
+function delPipe(col, i) {
+  var key = 'pipe_' + col;
+  S[key].splice(i, 1);
+  renderPipeline();
+  dbSet(key, S[key]);
+}
+
 function renderMusicList() {
-  const items = load('music_list', []);
-  const el = document.getElementById('music-list');
+  var items = S.music_list || [];
+  var el = document.getElementById('music-list');
   el.innerHTML = '';
-  items.forEach((item, i) => {
-    const typeClass = 'type-'+item.type;
-    const labels = {release:'Release',set:'DJ Set',festival:'Festival',artist:'Artist',nextstep:'Next step',industry:'Industry'};
-    const div = document.createElement('div');
+  var labels = { release:'Release', set:'DJ Set', festival:'Festival', artist:'Artist', nextstep:'Next step', industry:'Industry' };
+  items.forEach(function(item, i) {
+    var div = document.createElement('div');
     div.className = 'music-item';
-    div.innerHTML = `
-      <span class="music-type ${typeClass}">${labels[item.type]||item.type}</span>
-      <span class="music-text">${item.text}</span>
-      <button class="music-del" onclick="deleteMusicItem(${i})">×</button>`;
+    div.innerHTML =
+      '<span class="music-type type-' + item.type + '">' + (labels[item.type] || item.type) + '</span>' +
+      '<span class="music-text">' + item.text + '</span>' +
+      '<button class="music-del" onclick="delMusic(' + i + ')">×</button>';
     el.appendChild(div);
   });
 }
+
 function addMusicItem() {
-  const input = document.getElementById('music-input');
-  const type = document.getElementById('music-type-select').value;
-  const text = input.value.trim();
+  var inp = document.getElementById('music-input');
+  var type = document.getElementById('music-type-select').value;
+  var text = inp.value.trim();
   if (!text) return;
-  const items = load('music_list', []);
-  items.push({ type, text });
-  save('music_list', items);
-  input.value = '';
+  S.music_list.push({ type: type, text: text });
+  inp.value = '';
   renderMusicList();
-}
-function deleteMusicItem(idx) {
-  const items = load('music_list', []);
-  items.splice(idx, 1);
-  save('music_list', items);
-  renderMusicList();
+  dbSet('music_list', S.music_list);
 }
 
-// ─── FOCUS ────────────────────────────────────────────────────────
+function delMusic(i) {
+  S.music_list.splice(i, 1);
+  renderMusicList();
+  dbSet('music_list', S.music_list);
+}
+
 function initFocus() {
-  const today = new Date().toDateString();
-  const saved = load('focus', {});
-  const input = document.getElementById('focus-input');
-  input.value = saved.date === today ? (saved.text || '') : '';
-  input.addEventListener('input', () => {
-    save('focus', { date: today, text: input.value });
+  var today = new Date().toDateString();
+  var inp = document.getElementById('focus-input');
+  inp.value = (S.focus && S.focus.date === today) ? (S.focus.text || '') : '';
+  var t;
+  inp.addEventListener('input', function() {
+    clearTimeout(t);
+    t = setTimeout(function() {
+      S.focus = { date: today, text: inp.value };
+      dbSet('focus', S.focus);
+    }, 800);
   });
 }
 
-// ─── MARKETS ─────────────────────────────────────────────────────
-async function loadMarkets() {
-  const el = document.getElementById('market-content');
+function loadMarkets() {
+  var el = document.getElementById('market-content');
   el.innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading markets...</div>';
-
-  const prompt = `You are a financial data assistant. Return ONLY a valid JSON object, no explanation, no markdown, no backticks.
-The JSON must have this exact structure:
-{
-  "forex": [
-    {"name":"EUR/USD","price":"1.0823","change":"+0.12%","up":true},
-    {"name":"EUR/GBP","price":"0.8541","change":"-0.08%","up":false},
-    {"name":"Gold","price":"$2,312","change":"+0.45%","up":true},
-    {"name":"Oil (Brent)","price":"$83.2","change":"-1.2%","up":false},
-    {"name":"USD Index","price":"104.3","change":"+0.2%","up":true},
-    {"name":"Bitcoin","price":"$67,400","change":"+2.1%","up":true}
-  ],
-  "commodities": [
-    {"name":"Steel (HRC)","value":"$720/t","change":"+1.2%","up":true},
-    {"name":"Timber","value":"$420/MBF","change":"-0.8%","up":false},
-    {"name":"Concrete","value":"$125/t","change":"+0.3%","up":true},
-    {"name":"Copper","value":"$9,800/t","change":"+0.6%","up":true},
-    {"name":"Aluminium","value":"$2,450/t","change":"-0.4%","up":false}
-  ]
-}
-Use real approximate current market values as of today. Return ONLY the JSON.`;
-
-  try {
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+  callClaude({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    messages: [{ role: 'user', content: 'Return ONLY a valid JSON object, no markdown, no backticks. Structure: {"forex":[{"name":"EUR/USD","price":"1.08","change":"+0.12%","up":true},{"name":"EUR/GBP","price":"0.854","change":"-0.08%","up":false},{"name":"Gold","price":"$2312","change":"+0.45%","up":true},{"name":"Oil (Brent)","price":"$83.2","change":"-1.2%","up":false},{"name":"USD Index","price":"104.3","change":"+0.2%","up":true},{"name":"Bitcoin","price":"$67400","change":"+2.1%","up":true}],"commodities":[{"name":"Steel (HRC)","value":"$720/t","change":"+1.2%","up":true},{"name":"Timber","value":"$420/MBF","change":"-0.8%","up":false},{"name":"Concrete","value":"$125/t","change":"+0.3%","up":true},{"name":"Copper","value":"$9800/t","change":"+0.6%","up":true},{"name":"Aluminium","value":"$2450/t","change":"-0.4%","up":false}]} Use real approximate current market values. Return ONLY the JSON.' }]
+  }).then(function(data) {
+    var raw = data.content.map(function(c) { return c.text || ''; }).join('').replace(/```json|```/g, '').trim();
+    var d = JSON.parse(raw);
+    var html = '<div class="market-grid">';
+    d.forex.forEach(function(f) {
+      html += '<div class="market-tile"><div class="market-name">' + f.name + '</div><div class="market-price">' + f.price + '</div><div class="market-change ' + (f.up ? 'up' : 'down') + '">' + f.change + '</div></div>';
     });
-    const data = await res.json();
-    const raw = data.content.map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
-    const d = JSON.parse(raw);
-    renderMarkets(d);
-    document.getElementById('market-time').textContent = 'updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  } catch(e) {
+    html += '</div><div class="commodities-label">Construction commodities</div>';
+    d.commodities.forEach(function(c) {
+      html += '<div class="commodity-row"><span class="commodity-name">' + c.name + '</span><span><span class="commodity-val">' + c.value + '</span><span class="commodity-chg ' + (c.up ? 'up' : 'down') + '">' + c.change + '</span></span></div>';
+    });
+    el.innerHTML = html;
+    document.getElementById('market-time').textContent = 'updated ' + new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  }).catch(function() {
     el.innerHTML = '<div class="loading-state" style="color:var(--down)">Failed to load. Retry.</div>';
-  }
+  });
 }
 
-function renderMarkets(d) {
-  const el = document.getElementById('market-content');
-  let html = '<div class="market-grid">';
-  d.forex.forEach(f => {
-    html += `<div class="market-tile">
-      <div class="market-name">${f.name}</div>
-      <div class="market-price">${f.price}</div>
-      <div class="market-change ${f.up?'up':'down'}">${f.change}</div>
-    </div>`;
-  });
-  html += '</div>';
-  html += '<div class="commodities-label">Construction commodities</div>';
-  d.commodities.forEach(c => {
-    html += `<div class="commodity-row">
-      <span class="commodity-name">${c.name}</span>
-      <span><span class="commodity-val">${c.value}</span><span class="commodity-chg ${c.up?'up':'down'}">${c.change}</span></span>
-    </div>`;
-  });
-  el.innerHTML = html;
-}
-
-// ─── NEWS ─────────────────────────────────────────────────────────
-async function loadNews(type) {
-  const elId = type === 'geo' ? 'geo-content' : 'music-news-content';
-  const el = document.getElementById(elId);
+function loadNews(type) {
+  var elId = type === 'geo' ? 'geo-content' : 'music-news-content';
+  var el = document.getElementById(elId);
   el.innerHTML = '<div class="loading-state"><div class="spinner"></div>Fetching headlines...</div>';
-
-  const prompt = type === 'geo'
-    ? `You are a news briefing assistant. Return ONLY a valid JSON array of 7 current geopolitical and world news headlines. No markdown, no backticks, no explanation.
-Format: [{"headline":"...","region":"...","tag":"geo"},...]
-Use real, current major world news. Keep headlines under 15 words. Return ONLY the JSON array.`
-    : `You are a music industry briefing assistant. Return ONLY a valid JSON array of 6 current music news items. No markdown, no backticks, no explanation.
-Mix of: new album releases, DJ set news, festival lineups, artist news, music industry news.
-Format: [{"headline":"...","type":"release|festival|industry|artist|set","source":"..."},...]
-Keep headlines under 15 words. Return ONLY the JSON array.`;
-
-  try {
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
+  var prompt = type === 'geo'
+    ? 'Return ONLY a valid JSON array of 7 current geopolitical world news headlines. No markdown. Format: [{"headline":"...","region":"..."},...] Under 15 words each. Return ONLY JSON.'
+    : 'Return ONLY a valid JSON array of 6 current music news items. No markdown. Mix: releases, DJ sets, festivals, artist news, industry. Format: [{"headline":"...","type":"release|festival|industry|artist|set","source":"..."},...] Under 15 words each. Return ONLY JSON.';
+  callClaude({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+    messages: [{ role: 'user', content: prompt }]
+  }).then(function(data) {
+    var raw = data.content.map(function(c) { return c.text || ''; }).join('').replace(/```json|```/g, '').trim();
+    var items = JSON.parse(raw);
+    var typeMap = { release:'Release', festival:'Festival', industry:'Industry', artist:'Artist', set:'DJ Set' };
+    el.innerHTML = '';
+    items.forEach(function(item) {
+      var div = document.createElement('div');
+      div.className = 'news-item';
+      div.innerHTML = type === 'geo'
+        ? '<div class="news-headline">' + item.headline + '</div><div class="news-meta"><span class="news-tag tag-geo">geo</span>' + (item.region || '') + '</div>'
+        : '<div class="news-headline">' + item.headline + '</div><div class="news-meta"><span class="news-tag tag-music">' + (typeMap[item.type] || item.type) + '</span>' + (item.source || '') + '</div>';
+      el.appendChild(div);
     });
-    const data = await res.json();
-    const raw = data.content.map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
-    const items = JSON.parse(raw);
-    renderNews(elId, items, type);
-  } catch(e) {
-    el.innerHTML = '<div class="loading-state" style="color:var(--down)">Failed to load headlines.</div>';
-  }
-}
-
-function renderNews(elId, items, type) {
-  const el = document.getElementById(elId);
-  el.innerHTML = '';
-  items.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'news-item';
-    if (type === 'geo') {
-      div.innerHTML = `
-        <div class="news-headline">${item.headline}</div>
-        <div class="news-meta"><span class="news-tag tag-geo">geo</span>${item.region||''}</div>`;
-    } else {
-      const typeMap = {release:'Release',festival:'Festival',industry:'Industry',artist:'Artist',set:'DJ Set'};
-      div.innerHTML = `
-        <div class="news-headline">${item.headline}</div>
-        <div class="news-meta"><span class="news-tag tag-music">${typeMap[item.type]||item.type}</span>${item.source||''}</div>`;
-    }
-    el.appendChild(div);
+  }).catch(function() {
+    el.innerHTML = '<div class="loading-state" style="color:var(--down)">Failed to load.</div>';
   });
 }
 
-// ─── REFRESH ALL ─────────────────────────────────────────────────
-async function refreshAll() {
-  const btn = document.getElementById('refresh-btn');
+function refreshAll() {
+  var btn = document.getElementById('refresh-btn');
   btn.disabled = true;
   btn.textContent = '↻ Refreshing...';
-  await Promise.all([loadMarkets(), loadNews('geo'), loadNews('music')]);
-  btn.disabled = false;
-  btn.textContent = '↻ Refresh news & markets';
+  Promise.all([
+    new Promise(function(res) { loadMarkets(); setTimeout(res, 8000); }),
+    new Promise(function(res) { loadNews('geo'); setTimeout(res, 8000); }),
+    new Promise(function(res) { loadNews('music'); setTimeout(res, 8000); })
+  ]).then(function() {
+    btn.disabled = false;
+    btn.textContent = '↻ Refresh news & markets';
+  });
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────
-setDate();
-loadWeather();
-initFocus();
-renderTasks('personal');
-renderTasks('venture');
-renderPipeline();
-renderMusicList();
+boot();
 loadMarkets();
 loadNews('geo');
 loadNews('music');
